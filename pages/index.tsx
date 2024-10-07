@@ -4,13 +4,13 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 const Home: NextPage = () => {
-  const [images, setImages] = useState<[{src: string, title: string, description: string}]>()
+  const [images, setImages] = useState<Array<{ id:Number, src: string, title: string, description: string, likes: number}>>()
   const [imageSearch, setImageSearch] = useState('')
 
   useEffect(() => {
     fetch('/images.json')
       .then((response) => response.json())
-      .then((json) => setImages(json.data))
+      .then((json) => setImages(json.data.map(v => ({ ...v, likes: 0 }))))
       .catch((error) => console.error('Error fetching JSON:', error));
   }, [])
 
@@ -30,13 +30,13 @@ const Home: NextPage = () => {
       <main className="mx-auto max-w-[1960px] p-4">
         <div className="w-full flex items-center p-4 flex-col">
           <div className="w-1/2 flex flex-col text-center">
-            <label htmlFor="imagesearch" style={{ color: 'white' }}>Buscar Imagen</label>
-            <input className="rounded-lg" type="text" id="imagesearch" onChange={(e) => setImageSearch(e.target.value)} value={imageSearch} />
+            <label htmlFor="imagesearch" className="text-2xl">Buscar Imagen</label>
+            <input className="rounded-lg text-black p-2" type="text" id="imagesearch" onChange={(e) => setImageSearch(e.target.value)} value={imageSearch} />
           </div>
         </div>
 
         <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
-          {images && images.map(({ src, title, description }) => {
+          {images && images.filter(v => v.title.toLowerCase().includes(imageSearch.toLowerCase()) || v.description.toLowerCase().includes(imageSearch.toLowerCase())).map(({ src, title, description, likes, id }) => {
             return (
               <div className="border rounded-lg p-2 border-opacity-55 border-emerald-300">
                 <Image
@@ -53,6 +53,10 @@ const Home: NextPage = () => {
                 />
                 <h1>{title}</h1>
                 <p>{description}</p>
+                <div className="border-red-600 border w-fit rounded-3xl p-2 m-2">
+                  {likes}
+                </div>
+                <button onClick={() => setImages(images.map(image => image.id === id ? ({ ...image, likes: image.likes + 1 }) : image))}>Dar me gusta</button>
               </div>
             )
           })}
