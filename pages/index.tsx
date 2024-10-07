@@ -4,8 +4,9 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 const Home: NextPage = () => {
-  const [images, setImages] = useState<Array<{ id:Number, src: string, title: string, description: string, likes: number}>>()
+  const [images, setImages] = useState<Array<{ id: number, src: string, title: string, description: string, comments: Array<string>, likes: number}>>()
   const [imageSearch, setImageSearch] = useState('')
+  const [inputComment, setInputComment] = useState<{idComment: number, comment: string}>()
 
   useEffect(() => {
     fetch('/images.json')
@@ -36,7 +37,7 @@ const Home: NextPage = () => {
         </div>
 
         <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
-          {images && images.filter(v => v.title.toLowerCase().includes(imageSearch.toLowerCase()) || v.description.toLowerCase().includes(imageSearch.toLowerCase())).map(({ src, title, description, likes, id }) => {
+          {images && images.filter(v => v.title.toLowerCase().includes(imageSearch.toLowerCase()) || v.description.toLowerCase().includes(imageSearch.toLowerCase())).map(({ src, title, description, likes, id, comments }) => {
             return (
               <div className="border rounded-lg p-2 border-opacity-55 border-emerald-300">
                 <Image
@@ -57,6 +58,25 @@ const Home: NextPage = () => {
                   {likes}
                 </div>
                 <button onClick={() => setImages(images.map(image => image.id === id ? ({ ...image, likes: image.likes + 1 }) : image))}>Dar me gusta</button>
+                
+                <div>
+                  <h3>Comentarios</h3>
+                  <div className="flex flex-col">
+                    {comments.map(comment => <div>
+                      {comment}
+                    </div>)}
+                    <form className="flex flex-col border border-teal-500" onSubmit={e => e.preventDefault()}>
+                      <label htmlFor="comment">Agrega tu comentario:</label>
+                      <input className="text-black" type="text" id="comment" value={inputComment && id === inputComment.idComment ? inputComment.comment : ''} onChange={e => setInputComment({idComment: id,comment: e.target.value})} />
+                      <input type="submit" value="Comentar!" onClick={() => {
+                        if (inputComment.idComment === id) {
+                          setImages(images.map(image => image.id === id ? {...image, comments: [...image.comments, inputComment.comment]}:image))
+                        }
+                        setInputComment({idComment: id, comment: ''})
+                      }} />
+                    </form>
+                  </div>
+                </div>
               </div>
             )
           })}
