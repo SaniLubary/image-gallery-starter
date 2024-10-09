@@ -36,10 +36,10 @@ const Home: NextPage = () => {
           </div>
         </div>
 
-        <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {images && images.filter(v => v.title.toLowerCase().includes(imageSearch.toLowerCase()) || v.description.toLowerCase().includes(imageSearch.toLowerCase())).map(({ src, title, description, likes, id, comments }) => {
             return (
-              <div className="border rounded-lg p-2 border-opacity-55 border-emerald-300">
+              <div className="flex flex-col justify-center rounded-lg p-2">
                 <Image
                   alt={title}
                   className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
